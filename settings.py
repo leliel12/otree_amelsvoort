@@ -142,7 +142,7 @@ SESSION_TYPES = [
         'display_name': "Matching Pennies",
         'num_demo_participants': 2,
         'app_sequence': [
-            'matching_pennies', 'payment_info'
+            "questionnaire", 'matching_pennies', 'payment_info'
         ],
     },
 ]
