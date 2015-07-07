@@ -142,7 +142,8 @@ SESSION_TYPES = [
         'display_name': "Myopic loss aversion: Additive vs Multiplicative",
         'num_demo_participants': 20,
         'app_sequence': [
-            "questionnaire", 'myopic_loss_aversion', 'payment_info'
+            #~ "questionnaire",
+            'myopic_loss_aversion', 'payment_info'
         ],
     },
 ]

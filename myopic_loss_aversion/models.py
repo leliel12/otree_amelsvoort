@@ -25,11 +25,8 @@ source_code = "https://github.com/leliel12/otree_amelsvoort"
 
 bibliography = ()
 
-
 links = {
-    "Wikipedia": {
-        "Matching Pennies": "https://en.wikipedia.org/wiki/Matching_pennies"
-    }
+    "Wikipedia": {}
 }
 
 keywords = ("Myopic loss aversion", "Additive", "Multiplicative")
@@ -84,7 +81,7 @@ class Group(otree.models.BaseGroup):
     # </built-in>
 
     def group_type(self):
-        import ipdb; ipdb.set_trace()
+        return Constants.groups[self.id_in_subsession]
 
     def set_payoffs(self):
         import ipdb; ipdb.set_trace()

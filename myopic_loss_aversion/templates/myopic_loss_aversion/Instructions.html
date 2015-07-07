@@ -19,7 +19,7 @@
         "Myopic loss aversion: Additive vs Multiplicative".
     </p>
 
-    <p>You are in {{group_type}} group</p>
+    <p>You are in <b>{{group_type}}</b> group</p>
 
     {% if group_type == constants.gadd %}
     <p>
@@ -28,9 +28,11 @@
         end all the result of each round is added up. This looks like the next
         formula:
     </p>
-    <span class="latex">
-
-    </span>
+    <p>
+        <span class="latex">
+            FW = \sum_{i=1}^{T} X [\alpha(t)  [1+r(t)] + [1-\alpha(t)]
+        </span>
+    </p>
     <p>
         Where FW is final wealth, X the new endowment in each period, α(t) the
         fraction  investment into the risky assets, r(t) the return on the
@@ -46,9 +48,11 @@
         in the safe asset. Mathematically the group looks result of the group
         looks like the next formula:
     </p>
-    <span class="latex">
-
-    </span>
+    <p>
+        <span class="latex">
+            FW = Y \prod_{i=1}^{T} [\alpha(t)  [1+r(t)] + [1-\alpha(t)]
+        </span>
+    </p>
     <p>
         Here Y is the initial endowment and the rest of the abbreviations are
         the same as in the previous equation.
