@@ -8,7 +8,7 @@ from .models import Constants
 def vars_for_all_templates(self):
 
     return {'total_q': 1,
-            'total_rounds': Constants.num_rounds,
+            'constants': Constants,
             'round_number': self.subsession.round_number,
             'role': self.player.role()}
 
@@ -82,10 +82,4 @@ class ResultsSummary(Page):
                 'total_plus_base': total_payoff + Constants.base_points}
 
 
-page_sequence = [Introduction,
-            Question,
-            Feedback1,
-            Choice,
-            ResultsWaitPage,
-            Results,
-            ResultsSummary]
+page_sequence = [Introduction]
