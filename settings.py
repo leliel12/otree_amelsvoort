@@ -138,8 +138,8 @@ SESSION_TYPE_DEFAULTS = {
 
 SESSION_TYPES = [
     {
-        'name': 'matching_pennies',
-        'display_name': "Matching Pennies",
+        'name': 'myopic_loss_aversion',
+        'display_name': "Myopic loss aversion: Additive vs Multiplicative",
         'num_demo_participants': 2,
         'app_sequence': [
             "questionnaire", 'matching_pennies', 'payment_info'
