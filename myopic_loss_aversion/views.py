@@ -6,10 +6,7 @@ from otree.common import Currency as c, currency_range
 from .models import Constants
 
 def vars_for_all_templates(self):
-
-    return {'total_q': 1,
-            'constants': Constants,
-            'round_number': self.subsession.round_number,
+    return {'Constants': Constants,
             'player': self.player}
 
 
@@ -19,10 +16,21 @@ class Introduction(Page):
         return self.subsession.round_number == 1
 
     def vars_for_template(self):
-        group_type = self.player.group.group_type()
-        return {
-            "group_type": group_type[0],
-        }
+        return {}
 
 
-page_sequence = [Introduction]
+class Decide(Page):
+
+    def is_displayed(self):
+        return True
+
+    form_model = models.Player
+    form_fields = ['bet']
+
+    def vars_for_template(self):
+        label = "In round {}, I invest".format(self.subsession.round_number)
+        return {"label": label}
+
+
+
+page_sequence = [Introduction, Decide]

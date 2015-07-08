@@ -19,9 +19,9 @@
         "Myopic loss aversion: Additive vs Multiplicative".
     </p>
 
-    <p>You are in <b>{{group_type}}</b> group</p>
+    <p>You are in <b>{{player.group.group_type}}</b> group</p>
 
-    {% if group_type == constants.gadd %}
+    {% if player.group.group_type == Constants.gadd %}
     <p>
         Get a new endowment of $10 in each round. The gains or losses of a
         certain period do not affect the endowment in the next period. In the

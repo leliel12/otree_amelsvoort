@@ -37,18 +37,25 @@ class Constants:
     name_in_url = 'myopic_loss_aversion'
 
     gadd, gmul = "additive", "multiplicative"
-    sg1, sg2, sg3, sg4 = 1, 2, 3, 4
+    gadd_endowment, gmul_endowment = c(10), c(100)
 
+    sg1, sg2, sg3, sg4 = 1, 2, 3, 4
     groups = [
         (g, sg) for g in (gadd, gmul) for sg in (sg1, sg2, sg3, sg4)]
 
     players_per_group = None
     num_rounds = 1
 
+    win_chance = 40
+    loose_chance = 100 - win_chance
+    win_perc = 7
+    loose_perc = -3
+
 
 class Subsession(otree.models.BaseSubsession):
 
-       def before_session_starts(self):
+    def before_session_starts(self):
+
         if self.round_number == 1:
 
             # create the base for number of groups
@@ -61,6 +68,8 @@ class Subsession(otree.models.BaseSubsession):
             while sum(players_per_group) < num_players:
                 players_per_group[idxg] += 1
                 idxg += 1
+                if idxg >= len(players_per_group):
+                    idxg = 0
 
             # reassignment of groups
             list_of_lists = []
@@ -73,6 +82,17 @@ class Subsession(otree.models.BaseSubsession):
                 list_of_lists.append(group_players)
             self.set_groups(list_of_lists)
 
+        for idx, group in enumerate(self.get_groups()):
+            group.group_type, group.subgroup_type = Constants.groups[idx]
+            if group.group_type == Constants.gadd or self.round_number == 1:
+                endowment = (
+                    Constants.gadd_endowment
+                    if group.group_type == Constants.gadd else
+                    Constants.gmul_endowment)
+                for player in group.get_players():
+                    player.fw += endowment
+                    player.save()
+
 
 class Group(otree.models.BaseGroup):
 
@@ -80,8 +100,14 @@ class Group(otree.models.BaseGroup):
     subsession = models.ForeignKey(Subsession)
     # </built-in>
 
-    def group_type(self):
-        return Constants.groups[self.id_in_subsession]
+    group_type = models.CharField(
+        max_length=20, choices=[Constants.gadd, Constants.gmul])
+
+    subgroup_type = models.IntegerField(
+        choices=[Constants.sg1, Constants.sg2, Constants.sg3, Constants.sg4])
+
+    def random_win(self):
+        return random.randint(0, 99) <= Constants.win_chance
 
     def set_payoffs(self):
         import ipdb; ipdb.set_trace()
@@ -93,5 +119,11 @@ class Player(otree.models.BasePlayer):
     group = models.ForeignKey(Group, null=True)
     subsession = models.ForeignKey(Subsession)
     # </built-in>
+
+    fw = models.CurrencyField(min=0, default=c(0))
+    bet = models.PositiveIntegerField(
+        min=0, max=100, widget=widgets.SliderInput())
+
+
 
 
