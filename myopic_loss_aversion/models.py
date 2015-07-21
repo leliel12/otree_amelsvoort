@@ -58,12 +58,21 @@ class Subsession(otree.models.BaseSubsession):
 
         if self.round_number == 1:
 
+            # extract and mix the players
+            players = self.get_players()
+            random.shuffle(players)
+
             # create the base for number of groups
-            num_players = len(self.get_players())
+            num_players = len(players)
             num_groups = len(Constants.groups)
+
+            # create a list of how many players must be in every group
+            # the result of this will be [2, 2, 2, 2, 2, 2, 2, 2]
+            # obviously 2 * 8 = 16
             players_per_group = [int(num_players/num_groups)] * num_groups
 
-            # verify if all players are assigned
+            # add one player in order per group until the sum of size of
+            # every group is equal to total of players
             idxg = 0
             while sum(players_per_group) < num_players:
                 players_per_group[idxg] += 1
@@ -73,11 +82,16 @@ class Subsession(otree.models.BaseSubsession):
 
             # reassignment of groups
             list_of_lists = []
-            start_index = 0
-            players = self.get_players()
             for g_idx, g_size in enumerate(players_per_group):
+                # it is the first group the offset is 0 otherwise we start
+                # after all the players already exausted
                 offset = 0 if g_idx == 0 else sum(players_per_group[:g_idx])
+
+                # the asignation of this group end when we asign the total
+                # size of the group
                 limit = offset + g_size
+
+                # we select the player to add
                 group_players = players[offset:limit]
                 list_of_lists.append(group_players)
             self.set_groups(list_of_lists)
