@@ -117,7 +117,8 @@ class Player(otree.models.BasePlayer):
     subsession = models.ForeignKey(Subsession)
     # </built-in>
 
-    fw = models.CurrencyField(min=0, default=c(0))
+    payoff = models.CurrencyField(min=0)
+    fw = models.CurrencyField(min=0)
     bet = models.PositiveIntegerField(
         min=0, max=100, widget=widgets.SliderInput())
     is_winner = models.BooleanField()
@@ -128,27 +129,31 @@ class Player(otree.models.BasePlayer):
             return True
         return round_number % 3 == 0
 
-    def gadd_payoff(self, fw, winner):
+    def gadd_payoff(self, winner):
         X = Constants.gadd_endowment
         alpha_t = self.bet / 100.
         rt = (Constants.win_perc if winner else Constants.loose_perc) / 100.
-        return fw + X * (alpha_t * (1 + rt) + (1 - alpha_t))
+        return X * (alpha_t * (1 + rt) + (1 - alpha_t))
 
-    def gmul_payoff(self, fw, winner):
+    def gmul_payoff(self, winner):
         alpha_t = self.bet / 100.
         rt = (Constants.win_perc if winner else Constants.loose_perc) / 100.
-        return fw * alpha_t * (1 + rt) + (1 - alpha_t)
+        return alpha_t * (1 + rt) + (1 - alpha_t)
 
     def set_payoff(self):
+
+        # retrieve all palyers that not have payoff
         to_compute = [
             p for p in self.in_previous_rounds() if p.is_winner is None
         ] + [self]
 
         for idx, player in enumerate(to_compute):
 
+            # check if is winner
             player.is_winner = (
                 random.randint(0, 99) <= Constants.win_chance)
 
+            # endowment changre
             if idx == 0 and self.group.group_type == Constants.gad:
                 fw = 0
             elif idx == 0 and self.group.group_type == Constants.gmul:
@@ -156,7 +161,10 @@ class Player(otree.models.BasePlayer):
             else:
                 fw = to_compute[idx-1].fw
 
+            # payoff ccompute
             if self.group.group_type == Constants.gad:
-                self.fw = self.gadd_payoff(fw, player.is_winner)
+                self.payoff = self.gadd_payoff(player.is_winner)
+                self.fw = fw + self.payoff
             else:
-                self.fw = self.gmul_payoff(fw, player.is_winner)
+                self.payoff = self.gmul_payoff(player.is_winner)
+                self.fw = fw * self.payoff
