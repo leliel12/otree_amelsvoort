@@ -31,6 +31,18 @@ class Decide(Page):
         label = "In round {}, I invest".format(self.subsession.round_number)
         return {"label": label}
 
+    def before_next_page(self):
+        # only compute if is feedback time
+        if self.player.feedback_time():
+            self.player.set_payoff()
 
 
-page_sequence = [Introduction, Decide]
+class Feedback(Page):
+
+    def is_displayed(self):
+        return self.player.feedback_time()
+
+
+
+
+page_sequence = [Introduction, Decide, Feedback]

@@ -138,12 +138,12 @@ SESSION_TYPE_DEFAULTS = {
 
 SESSION_TYPES = [
     {
-        'name': 'myopic_loss_aversion',
-        'display_name': "Myopic loss aversion: Additive vs Multiplicative",
+        'name': 'investment_game',
+        'display_name': "Investment game",
         'num_demo_participants': 8,
         'app_sequence': [
-            "questionnaire",
-            'myopic_loss_aversion',
+            #"questionnaire",
+            "myopic_loss_aversion",
         ],
     },
 ]

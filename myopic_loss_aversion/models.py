@@ -44,7 +44,7 @@ class Constants:
         (g, sg) for g in (gadd, gmul) for sg in (sg1, sg2, sg3, sg4)]
 
     players_per_group = None
-    num_rounds = 1
+    num_rounds = 9
 
     win_chance = 40
     loose_chance = 100 - win_chance
@@ -96,17 +96,6 @@ class Subsession(otree.models.BaseSubsession):
                 list_of_lists.append(group_players)
             self.set_groups(list_of_lists)
 
-        for idx, group in enumerate(self.get_groups()):
-            group.group_type, group.subgroup_type = Constants.groups[idx]
-            if group.group_type == Constants.gadd or self.round_number == 1:
-                endowment = (
-                    Constants.gadd_endowment
-                    if group.group_type == Constants.gadd else
-                    Constants.gmul_endowment)
-                for player in group.get_players():
-                    player.fw += endowment
-                    player.save()
-
 
 class Group(otree.models.BaseGroup):
 
@@ -120,12 +109,6 @@ class Group(otree.models.BaseGroup):
     subgroup_type = models.IntegerField(
         choices=[Constants.sg1, Constants.sg2, Constants.sg3, Constants.sg4])
 
-    def random_win(self):
-        return random.randint(0, 99) <= Constants.win_chance
-
-    def set_payoffs(self):
-        import ipdb; ipdb.set_trace()
-
 
 class Player(otree.models.BasePlayer):
 
@@ -137,7 +120,43 @@ class Player(otree.models.BasePlayer):
     fw = models.CurrencyField(min=0, default=c(0))
     bet = models.PositiveIntegerField(
         min=0, max=100, widget=widgets.SliderInput())
+    is_winner = models.BooleanField()
 
+    def feedback_time(self):
+        round_number = self.subsession.round_number
+        if self.group.subgroup_type == Constants.sg1:
+            return True
+        return round_number % 3 == 0
 
+    def gadd_payoff(self, fw, winner):
+        X = Constants.gadd_endowment
+        alpha_t = self.bet / 100.
+        rt = (Constants.win_perc if winner else Constants.loose_perc) / 100.
+        return fw + X * (alpha_t * (1 + rt) + (1 - alpha_t))
 
+    def gmul_payoff(self, fw, winner):
+        alpha_t = self.bet / 100.
+        rt = (Constants.win_perc if winner else Constants.loose_perc) / 100.
+        return fw * alpha_t * (1 + rt) + (1 - alpha_t)
 
+    def set_payoff(self):
+        to_compute = [
+            p for p in self.in_previous_rounds() if p.is_winner is None
+        ] + [self]
+
+        for idx, player in enumerate(to_compute):
+
+            player.is_winner = (
+                random.randint(0, 99) <= Constants.win_chance)
+
+            if idx == 0 and self.group.group_type == Constants.gad:
+                fw = 0
+            elif idx == 0 and self.group.group_type == Constants.gmul:
+                fw = Constants.gmul_endowment
+            else:
+                fw = to_compute[idx-1].fw
+
+            if self.group.group_type == Constants.gad:
+                self.fw = self.gadd_payoff(fw, player.is_winner)
+            else:
+                self.fw = self.gmul_payoff(fw, player.is_winner)
