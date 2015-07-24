@@ -98,7 +98,7 @@ class Subsession(otree.models.BaseSubsession):
 
         for idx, group in enumerate(self.get_groups()):
             group.group_type, group.subgroup_type = Constants.groups[idx]
-            group.subgroup_type = Constants.sg3
+            group.subgroup_type = Constants.sg4
 
 class Group(otree.models.BaseGroup):
 

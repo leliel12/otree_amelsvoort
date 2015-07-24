@@ -73,6 +73,8 @@ class Feedback(Page):
         players = self.player.in_previous_rounds() + [self.player]
         return {"player_x_round": players[offset:limit]}
 
+    def _sg4_vars_for_template(self):
+        return self._sg2_vars_for_template()
 
 
 class Resume(Page):
