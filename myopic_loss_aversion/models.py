@@ -96,6 +96,9 @@ class Subsession(otree.models.BaseSubsession):
                 list_of_lists.append(group_players)
             self.set_groups(list_of_lists)
 
+        for idx, group in enumerate(self.get_groups()):
+            group.group_type, group.subgroup_type = Constants.groups[idx]
+            group.subgroup_type = Constants.sg3
 
 class Group(otree.models.BaseGroup):
 
@@ -117,7 +120,6 @@ class Player(otree.models.BasePlayer):
     subsession = models.ForeignKey(Subsession)
     # </built-in>
 
-    payoff = models.CurrencyField(min=0)
     fw = models.CurrencyField(min=0)
     bet = models.PositiveIntegerField(
         min=0, max=100, widget=widgets.SliderInput())
@@ -141,30 +143,83 @@ class Player(otree.models.BasePlayer):
         return alpha_t * (1 + rt) + (1 - alpha_t)
 
     def set_payoff(self):
+        method_name = "_sg{}_payoff".format(self.group.subgroup_type)
+        method = getattr(self, method_name)
+        method()
 
-        # retrieve all palyers that not have payoff
-        to_compute = [
-            p for p in self.in_previous_rounds() if p.is_winner is None
-        ] + [self]
+    def _sg1_payoff(self):
+        # retrieve the last whealt
+        fw = self.last_fw()
 
-        for idx, player in enumerate(to_compute):
+        # check if is winner
+        self.is_winner = (
+            random.randint(0, 99) <= Constants.win_chance)
 
-            # check if is winner
-            player.is_winner = (
+        # payoff ccompute
+        if self.group.group_type == Constants.gadd:
+            self.payoff = self.gadd_payoff(self.is_winner)
+            self.fw = fw + self.payoff
+        else:
+            self.payoff = self.gmul_payoff(self.is_winner)
+            self.fw = fw * self.payoff
+
+    def _sg2_payoff(self):
+        # retrieve the last whealt
+        fw = self.last_fw()
+
+        round_idx = self.subsession.round_number - 1
+        if round_idx in (0, 3, 6):
+            self.is_winner = (
                 random.randint(0, 99) <= Constants.win_chance)
+        else:
+            previous = self.in_previous_rounds()
+            if round_idx in (1, 2):
+                self.is_winner = previous[0].is_winner
+            elif round_idx in (4, 5):
+                self.is_winner = previous[3].is_winner
+            elif round_idx in (7, 8):
+                self.is_winner = previous[6].is_winner
+        # payoff ccompute
+        if self.group.group_type == Constants.gadd:
+            self.payoff = self.gadd_payoff(self.is_winner)
+            self.fw = fw + self.payoff
+        else:
+            self.payoff = self.gmul_payoff(self.is_winner)
+            self.fw = fw * self.payoff
 
-            # endowment changre
-            if idx == 0 and self.group.group_type == Constants.gad:
-                fw = 0
-            elif idx == 0 and self.group.group_type == Constants.gmul:
-                fw = Constants.gmul_endowment
-            else:
-                fw = to_compute[idx-1].fw
+    def _sg3_payoff(self):
+        self._sg1_payoff()
 
-            # payoff ccompute
-            if self.group.group_type == Constants.gad:
-                self.payoff = self.gadd_payoff(player.is_winner)
-                self.fw = fw + self.payoff
-            else:
-                self.payoff = self.gmul_payoff(player.is_winner)
-                self.fw = fw * self.payoff
+    def _sg4_payoff(self):
+        self._sg1_payoff()
+
+    def last_fw(self):
+        previous = self.in_previous_rounds()
+        first = not previous
+        if first and self.group.group_type == Constants.gadd:
+            return 0
+        elif first and self.group.group_type == Constants.gmul:
+            return Constants.gmul_endowment
+        return previous[-1].fw
+
+    def current_wealth(self):
+        if self.group.subgroup_type == Constants.sg1:
+            cw = self.last_fw()
+        else:
+            round_idx = self.subsession.round_number - 1
+            if round_idx in (0, 3, 6):
+                cw = self.last_fw()
+            elif round_idx in (1, 2):
+                players = self.in_previous_rounds()
+                cw = players[0].last_fw()
+            elif round_idx in (4, 5):
+                players = self.in_previous_rounds()
+                cw = players[3].last_fw()
+            elif round_idx in (7, 8):
+                players = self.in_previous_rounds()
+                cw = players[6].last_fw()
+
+        if cw == 0 and self.group.group_type == Constants.gadd:
+            cw = Constants.gadd_endowment
+
+        return cw
