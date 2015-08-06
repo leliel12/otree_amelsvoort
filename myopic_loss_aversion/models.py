@@ -40,7 +40,7 @@ class Constants:
     name_in_url = 'myopic_loss_aversion'
 
     gadd, gmul = "additive", "multiplicative"
-    gadd_endowment, gmul_endowment = c(10), c(100)
+    gadd_endowment, gmul_endowment = c(10000), c(100000)
 
     sg1, sg2, sg3, sg4 = 1, 2, 3, 4
     groups = [
