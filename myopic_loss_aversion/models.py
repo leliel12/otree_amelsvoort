@@ -32,6 +32,9 @@ links = {
 keywords = ("Myopic loss aversion", "Additive", "Multiplicative")
 
 
+# =============================================================================
+# CONSTANTS
+# =============================================================================
 
 class Constants:
     name_in_url = 'myopic_loss_aversion'
@@ -52,52 +55,61 @@ class Constants:
     loose_perc = -3
 
 
+# =============================================================================
+# SUBSESSION
+# =============================================================================
+
 class Subsession(otree.models.BaseSubsession):
 
     def before_session_starts(self):
+        if self.round_number != 1:
+            return
 
-        if self.round_number == 1:
+        # extract and mix the players
+        players = self.get_players()
+        random.shuffle(players)
 
-            # extract and mix the players
-            players = self.get_players()
-            random.shuffle(players)
+        # create the base for number of groups
+        num_players = len(players)
+        num_groups = len(Constants.groups)
 
-            # create the base for number of groups
-            num_players = len(players)
-            num_groups = len(Constants.groups)
+        # create a list of how many players must be in every group
+        # the result of this will be [2, 2, 2, 2, 2, 2, 2, 2]
+        # obviously 2 * 8 = 16
+        players_per_group = [int(num_players/num_groups)] * num_groups
 
-            # create a list of how many players must be in every group
-            # the result of this will be [2, 2, 2, 2, 2, 2, 2, 2]
-            # obviously 2 * 8 = 16
-            players_per_group = [int(num_players/num_groups)] * num_groups
+        # add one player in order per group until the sum of size of
+        # every group is equal to total of players
+        idxg = 0
+        while sum(players_per_group) < num_players:
+            players_per_group[idxg] += 1
+            idxg += 1
+            if idxg >= len(players_per_group):
+                idxg = 0
 
-            # add one player in order per group until the sum of size of
-            # every group is equal to total of players
-            idxg = 0
-            while sum(players_per_group) < num_players:
-                players_per_group[idxg] += 1
-                idxg += 1
-                if idxg >= len(players_per_group):
-                    idxg = 0
+        # reassignment of groups
+        list_of_lists = []
+        for g_idx, g_size in enumerate(players_per_group):
+            # it is the first group the offset is 0 otherwise we start
+            # after all the players already exausted
+            offset = 0 if g_idx == 0 else sum(players_per_group[:g_idx])
 
-            # reassignment of groups
-            list_of_lists = []
-            for g_idx, g_size in enumerate(players_per_group):
-                # it is the first group the offset is 0 otherwise we start
-                # after all the players already exausted
-                offset = 0 if g_idx == 0 else sum(players_per_group[:g_idx])
+            # the asignation of this group end when we asign the total
+            # size of the group
+            limit = offset + g_size
 
-                # the asignation of this group end when we asign the total
-                # size of the group
-                limit = offset + g_size
-
-                # we select the player to add
-                group_players = players[offset:limit]
-                list_of_lists.append(group_players)
-            self.set_groups(list_of_lists)
+            # we select the player to add
+            group_players = players[offset:limit]
+            list_of_lists.append(group_players)
+        self.set_groups(list_of_lists)
 
         for idx, group in enumerate(self.get_groups()):
             group.group_type, group.subgroup_type = Constants.groups[idx]
+
+
+# =============================================================================
+# GROUP
+# =============================================================================
 
 class Group(otree.models.BaseGroup):
 
@@ -111,6 +123,10 @@ class Group(otree.models.BaseGroup):
     subgroup_type = models.IntegerField(
         choices=[Constants.sg1, Constants.sg2, Constants.sg3, Constants.sg4])
 
+
+# =============================================================================
+# PLAYER
+# =============================================================================
 
 class Player(otree.models.BasePlayer):
 

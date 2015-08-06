@@ -22,41 +22,25 @@
     <p>You are in <b>{{player.group.group_type}} - {{player.group.subgroup_type}}</b> group</p>
 
     {% if player.group.group_type == Constants.gadd %}
-    <p>
-        Get a new endowment of $10 in each round. The gains or losses of a
-        certain period do not affect the endowment in the next period. In the
-        end all the result of each round is added up. This looks like the next
-        formula:
-    </p>
-    <p>
-        <span class="latex">
-            FW = \sum_{i=1}^{T} X [\alpha(t)  [1+r(t)] + [1-\alpha(t)]
-        </span>
-    </p>
-    <p>
-        Where FW is final wealth, X the new endowment in each period, α(t) the
-        fraction  investment into the risky assets, r(t) the return on the
-        risky investment in period t and T is the planning horizon.
-    </p>
+        {% if player.group.subgroup_type == Constants.sg1 %}
+            {% include 'myopic_loss_aversion/Instructions/asg1.html' %}
+        {% elif player.group.subgroup_type == Constants.sg2 %}
+            {% include 'myopic_loss_aversion/Instructions/asg2.html' %}
+        {% elif player.group.subgroup_type == Constants.sg3 %}
+            {% include 'myopic_loss_aversion/Instructions/asg3.html' %}
+        {% else %}
+            {% include 'myopic_loss_aversion/Instructions/asg4.html' %}
+        {% endif %}
     {% else %}
-    <p>
-        The multiplicative group. They get a single endowment in the first
-        period of $100.-. After the return is randomly chosen participant can
-        reinvest their endowment together with its returns in round 2. This
-        goes own for the remaining 8 rounds. Their final amount is the outcome
-        of the last round*investment in the risky asset plus what they invested
-        in the safe asset. Mathematically the group looks result of the group
-        looks like the next formula:
-    </p>
-    <p>
-        <span class="latex">
-            FW = Y \prod_{i=1}^{T} [\alpha(t)  [1+r(t)] + [1-\alpha(t)]
-        </span>
-    </p>
-    <p>
-        Here Y is the initial endowment and the rest of the abbreviations are
-        the same as in the previous equation.
-    </p>
+        {% if player.group.subgroup_type == Constants.sg1 %}
+            {% include 'myopic_loss_aversion/Instructions/msg1.html' %}
+        {% elif player.group.subgroup_type == Constants.sg2 %}
+            {% include 'myopic_loss_aversion/Instructions/msg2.html' %}
+        {% elif player.group.subgroup_type == Constants.sg3 %}
+            {% include 'myopic_loss_aversion/Instructions/msg3.html' %}
+        {% else %}
+            {% include 'myopic_loss_aversion/Instructions/msg4.html' %}
+        {% endif %}
     {% endif %}
 
 </div>
