@@ -8,6 +8,7 @@ from otree.common import Currency as c, currency_range
 import random
 # </standard imports>
 
+from django.conf import settings
 
 
 doc = """
@@ -37,6 +38,9 @@ keywords = ("Myopic loss aversion", "Additive", "Multiplicative")
 # =============================================================================
 
 class Constants:
+
+    dev = settings.DEBUG
+
     name_in_url = 'myopic_loss_aversion'
 
     gadd, gmul = "additive", "multiplicative"
@@ -61,10 +65,7 @@ class Constants:
 
 class Subsession(otree.models.BaseSubsession):
 
-    def before_session_starts(self):
-        if self.round_number != 1:
-            return
-
+    def before_first_round(self):
         # extract and mix the players
         players = self.get_players()
         random.shuffle(players)
@@ -103,9 +104,11 @@ class Subsession(otree.models.BaseSubsession):
             list_of_lists.append(group_players)
         self.set_groups(list_of_lists)
 
+    def before_session_starts(self):
+        if self.round_number == 1:
+            self.before_first_round()
         for idx, group in enumerate(self.get_groups()):
-            group.group_type, group.subgroup_type = Constants.groups[idx]
-
+            group.group_type, group.subgroup_type = Constants.groups[0]
 
 # =============================================================================
 # GROUP
@@ -171,10 +174,13 @@ class Player(otree.models.BasePlayer):
         if self.group.group_type == Constants.gadd:
             self.payoff = self.gadd_payoff(self.is_winner)
             self.fw = fw + self.payoff
+            import ipdb; ipdb.set_trace()
+            fw = (fw or Constants.gadd_endowment)
         else:
             self.payoff = self.gmul_payoff(self.is_winner)
             self.fw = fw * self.payoff
-        self.rt = (self.fw - fw)
+
+        self.rt = float(self.fw - fw)
 
     def last_fw(self):
         previous = self.in_previous_rounds()
@@ -204,27 +210,18 @@ class Player(otree.models.BasePlayer):
 
         if cw == 0 and self.group.group_type == Constants.gadd:
             cw = Constants.gadd_endowment
-
         return cw
 
-    def current_rt(self):
+    def resume_rt(self):
         if self.group.subgroup_type == Constants.sg1:
-            cw = self.last_fw()
+            cw = [self.rt]
         else:
-            round_idx = self.subsession.round_number - 1
-            if round_idx in (0, 3, 6):
-                cw = self.last_fw()
-            elif round_idx in (1, 2):
-                players = self.in_previous_rounds()
-                cw = players[0].last_fw()
-            elif round_idx in (4, 5):
-                players = self.in_previous_rounds()
-                cw = players[3].last_fw()
-            elif round_idx in (7, 8):
-                players = self.in_previous_rounds()
-                cw = players[6].last_fw()
+            players = self.in_previous_rounds() + [self]
+            limit = self.subsession.round_number
+            offset = limit - 1
+            while offset > 0 and round_number % 3 != 0:
+                offset -= 1
+            return [p.rt for p in players[offset:limit]]
 
-        if cw == 0 and self.group.group_type == Constants.gadd:
-            cw = Constants.gadd_endowment
-
-        return cw
+    def sum_rt(self):
+        return sum(self.resume_rt())

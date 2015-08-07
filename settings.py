@@ -142,7 +142,7 @@ SESSION_TYPES = [
         'display_name': "Investment game",
         'num_demo_participants': 8,
         'app_sequence': [
-            "questionnaire",
+            #~ "questionnaire",
             "myopic_loss_aversion",
         ],
     },
