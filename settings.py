@@ -146,6 +146,14 @@ SESSION_TYPES = [
             "myopic_loss_aversion",
         ],
     },
+    {
+        'name': 'investment_game_nq',
+        'display_name': "Investment game (without questionnaire)",
+        'num_demo_participants': 8,
+        'app_sequence': [
+            "myopic_loss_aversion",
+        ],
+    },
 ]
 
 
