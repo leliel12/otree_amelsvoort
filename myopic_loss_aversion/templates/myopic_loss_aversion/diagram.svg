@@ -164,7 +164,7 @@
              id="tspan3819"
              x="376.55243"
              y="465.79788"
-             style="font-size:33.35871506000000153px;text-align:center;text-anchor:middle;-inkscape-font-specification:Verdana;font-family:Verdana;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">+{{Constants.win_perc}}</tspan></text>
+             style="font-size:33.35871506000000153px;text-align:center;text-anchor:middle;-inkscape-font-specification:Verdana;font-family:Verdana;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">+{{Constants.win_perc}} %</tspan></text>
       </g>
       <g
          id="g3837-8"
@@ -187,7 +187,7 @@
              id="tspan3819-1"
              x="376.55243"
              y="465.79788"
-             style="font-size:33.35871506000000153px;text-align:center;text-anchor:middle;-inkscape-font-specification:Verdana;font-family:Verdana;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">{{Constants.loose_perc}}</tspan></text>
+             style="font-size:33.35871506000000153px;text-align:center;text-anchor:middle;-inkscape-font-specification:Verdana;font-family:Verdana;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">{{Constants.loose_perc}} %</tspan></text>
       </g>
     </g>
   </g>
