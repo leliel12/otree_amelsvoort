@@ -138,6 +138,7 @@ class Player(otree.models.BasePlayer):
     fw = models.CurrencyField(min=0)
     bet = models.PositiveIntegerField(
         min=0, max=100, widget=widgets.SliderInput())
+    rt = models.FloatField()
     is_winner = models.BooleanField()
 
     def feedback_time(self):
@@ -158,11 +159,7 @@ class Player(otree.models.BasePlayer):
         return alpha_t * (1 + rt) + (1 - alpha_t)
 
     def set_payoff(self):
-        method_name = "_sg{}_payoff".format(self.group.subgroup_type)
-        method = getattr(self, method_name)
-        method()
 
-    def _sg1_payoff(self):
         # retrieve the last whealt
         fw = self.last_fw()
 
@@ -177,36 +174,7 @@ class Player(otree.models.BasePlayer):
         else:
             self.payoff = self.gmul_payoff(self.is_winner)
             self.fw = fw * self.payoff
-
-    def _sg2_payoff(self):
-        # retrieve the last whealt
-        fw = self.last_fw()
-
-        round_idx = self.subsession.round_number - 1
-        if round_idx in (0, 3, 6):
-            self.is_winner = (
-                random.randint(0, 99) <= Constants.win_chance)
-        else:
-            previous = self.in_previous_rounds()
-            if round_idx in (1, 2):
-                self.is_winner = previous[0].is_winner
-            elif round_idx in (4, 5):
-                self.is_winner = previous[3].is_winner
-            elif round_idx in (7, 8):
-                self.is_winner = previous[6].is_winner
-        # payoff ccompute
-        if self.group.group_type == Constants.gadd:
-            self.payoff = self.gadd_payoff(self.is_winner)
-            self.fw = fw + self.payoff
-        else:
-            self.payoff = self.gmul_payoff(self.is_winner)
-            self.fw = fw * self.payoff
-
-    def _sg3_payoff(self):
-        self._sg1_payoff()
-
-    def _sg4_payoff(self):
-        self._sg1_payoff()
+        self.rt = (self.fw - fw)
 
     def last_fw(self):
         previous = self.in_previous_rounds()
@@ -218,6 +186,28 @@ class Player(otree.models.BasePlayer):
         return previous[-1].fw
 
     def current_wealth(self):
+        if self.group.subgroup_type == Constants.sg1:
+            cw = self.last_fw()
+        else:
+            round_idx = self.subsession.round_number - 1
+            if round_idx in (0, 3, 6):
+                cw = self.last_fw()
+            elif round_idx in (1, 2):
+                players = self.in_previous_rounds()
+                cw = players[0].last_fw()
+            elif round_idx in (4, 5):
+                players = self.in_previous_rounds()
+                cw = players[3].last_fw()
+            elif round_idx in (7, 8):
+                players = self.in_previous_rounds()
+                cw = players[6].last_fw()
+
+        if cw == 0 and self.group.group_type == Constants.gadd:
+            cw = Constants.gadd_endowment
+
+        return cw
+
+    def current_rt(self):
         if self.group.subgroup_type == Constants.sg1:
             cw = self.last_fw()
         else:
