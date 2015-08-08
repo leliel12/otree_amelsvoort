@@ -150,16 +150,19 @@ class Player(otree.models.BasePlayer):
             return True
         return round_number % 3 == 0
 
-    def gadd_payoff(self, winner):
+    def gadd_payoff(self, winner, pw):
         X = Constants.gadd_endowment
         alpha_t = self.bet / 100.
-        rt = (Constants.win_perc if winner else Constants.loose_perc) / 100.
-        return X * (alpha_t * (1 + rt) + (1 - alpha_t))
+        rtp = (Constants.win_perc if winner else Constants.loose_perc) / 100.
+        self.payoff = X * (alpha_t * (1 + rtp) + (1 - alpha_t))
+        self.rt = float(X * (alpha_t * rtp))
+        self.fw = pw + self.payoff
 
-    def gmul_payoff(self, winner):
+    def gmul_payoff(self, winner, pw):
         alpha_t = self.bet / 100.
-        rt = (Constants.win_perc if winner else Constants.loose_perc) / 100.
-        return alpha_t * (1 + rt) + (1 - alpha_t)
+        rtp = (Constants.win_perc if winner else Constants.loose_perc) / 100.
+        self.rt = float(pw * alpha_t * rtp)
+        self.fw = self.payoff = pw * (alpha_t * (1 + rtp) + (1 - alpha_t))
 
     def set_payoff(self):
 
@@ -172,15 +175,10 @@ class Player(otree.models.BasePlayer):
 
         # payoff ccompute
         if self.group.group_type == Constants.gadd:
-            self.payoff = self.gadd_payoff(self.is_winner)
-            self.fw = fw + self.payoff
-            import ipdb; ipdb.set_trace()
-            fw = (fw or Constants.gadd_endowment)
+            self.gadd_payoff(self.is_winner, fw)
         else:
-            self.payoff = self.gmul_payoff(self.is_winner)
+            self.gmul_payoff(self.is_winner, fw)
             self.fw = fw * self.payoff
-
-        self.rt = float(self.fw - fw)
 
     def last_fw(self):
         previous = self.in_previous_rounds()
@@ -223,5 +221,3 @@ class Player(otree.models.BasePlayer):
                 offset -= 1
             return [p.rt for p in players[offset:limit]]
 
-    def sum_rt(self):
-        return sum(self.resume_rt())
