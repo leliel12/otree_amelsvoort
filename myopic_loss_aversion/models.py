@@ -162,7 +162,8 @@ class Player(otree.models.BasePlayer):
         alpha_t = self.bet / 100.
         rtp = (Constants.win_perc if winner else Constants.loose_perc) / 100.
         self.rt = float(pw * alpha_t * rtp)
-        self.fw = self.payoff = pw * (alpha_t * (1 + rtp) + (1 - alpha_t))
+        self.fw = pw * (alpha_t * (1 + rtp) + (1 - alpha_t))
+        self.payoff = self.fw - pw
 
     def set_payoff(self):
 
