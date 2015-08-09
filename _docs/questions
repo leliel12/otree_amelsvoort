@@ -1,0 +1,15 @@
+Please check the last version online:
+
+
+
+
+Questions
+---------
+
+From the second and third design docs we have some changes in subgroups names
+i assume this is the correct matchinh:
+
+    sub group 1: Short Feedback - Short commitment
+    sub group 2: Long Feedback - Long commitment
+    sub group 3: Short Feedback - Long commitment
+    sub group 4: Long Feedback - short commitment
