@@ -77,6 +77,7 @@ LANGUAGE_CODE = 'en-us'
 
 INSTALLED_APPS = [
     'otree',
+    'mathfilters'
 ]
 
 if 'SENTRY_DSN' in os.environ:
@@ -142,7 +143,7 @@ SESSION_TYPES = [
         'display_name': "Investment game",
         'num_demo_participants': 8,
         'app_sequence': [
-            #~ "questionnaire",
+            "questionnaire",
             "myopic_loss_aversion",
         ],
     },

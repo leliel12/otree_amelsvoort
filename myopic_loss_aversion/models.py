@@ -205,6 +205,6 @@ class Player(otree.models.BasePlayer):
                 players = self.in_previous_rounds()
                 cw = players[6].last_fw()
 
-        if cw == 0 and self.group.group_type == Constants.gadd:
-            cw = Constants.gadd_endowment
+        if self.group.group_type == Constants.gadd:
+            cw += Constants.gadd_endowment
         return cw

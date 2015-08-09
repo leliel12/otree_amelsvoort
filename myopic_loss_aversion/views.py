@@ -48,7 +48,7 @@ class Feedback(Page):
             return method()
 
     def _sg1_vars_for_template(self):
-        return {"rt": abs(self.player.rt)}
+        return {}
 
     def _sg2_vars_for_template(self):
 
