@@ -154,16 +154,15 @@ class Player(otree.models.BasePlayer):
         X = Constants.gadd_endowment
         alpha_t = self.bet / 100.
         rtp = (Constants.win_perc if winner else Constants.loose_perc) / 100.
-        self.payoff = X * (alpha_t * (1 + rtp) + (1 - alpha_t))
-        self.rt = float(X * (alpha_t * rtp))
-        self.fw = pw + self.payoff
+        self.payoff = float(X * (alpha_t * rtp))
+        increment = X * (alpha_t * (1 + rtp) + (1 - alpha_t))
+        self.fw = pw + increment
 
     def gmul_payoff(self, winner, pw):
         alpha_t = self.bet / 100.
         rtp = (Constants.win_perc if winner else Constants.loose_perc) / 100.
-        self.rt = float(pw * alpha_t * rtp)
+        self.payoff = float(pw * alpha_t * rtp)
         self.fw = pw * (alpha_t * (1 + rtp) + (1 - alpha_t))
-        self.payoff = self.fw - pw
 
     def set_payoff(self):
 
@@ -209,17 +208,3 @@ class Player(otree.models.BasePlayer):
         if cw == 0 and self.group.group_type == Constants.gadd:
             cw = Constants.gadd_endowment
         return cw
-
-    def resume_rt(self):
-        if self.group.subgroup_type == Constants.sg1:
-            cw = [self.rt]
-        else:
-            players = self.in_previous_rounds() + [self]
-            limit = self.subsession.round_number
-            if round_idx in (0, 1, 2):
-                offset = 0
-            elif round_idx in (3, 4, 5):
-                offset = 3
-            elif round_idx in (6, 7, 8):
-                offset = 6
-            return [p.rt for p in players[offset:limit]]
