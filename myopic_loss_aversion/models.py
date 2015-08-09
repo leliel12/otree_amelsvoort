@@ -108,7 +108,7 @@ class Subsession(otree.models.BaseSubsession):
         if self.round_number == 1:
             self.before_first_round()
         for idx, group in enumerate(self.get_groups()):
-            group.group_type, group.subgroup_type = Constants.groups[0]
+            group.group_type, group.subgroup_type = Constants.groups[idx]
 
 # =============================================================================
 # GROUP
@@ -179,7 +179,6 @@ class Player(otree.models.BasePlayer):
             self.gadd_payoff(self.is_winner, fw)
         else:
             self.gmul_payoff(self.is_winner, fw)
-            self.fw = fw * self.payoff
 
     def last_fw(self):
         previous = self.in_previous_rounds()
@@ -217,8 +216,10 @@ class Player(otree.models.BasePlayer):
         else:
             players = self.in_previous_rounds() + [self]
             limit = self.subsession.round_number
-            offset = limit - 1
-            while offset > 0 and round_number % 3 != 0:
-                offset -= 1
+            if round_idx in (0, 1, 2):
+                offset = 0
+            elif round_idx in (3, 4, 5):
+                offset = 3
+            elif round_idx in (6, 7, 8):
+                offset = 6
             return [p.rt for p in players[offset:limit]]
-
