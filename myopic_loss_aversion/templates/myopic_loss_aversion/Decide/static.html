@@ -1,0 +1,17 @@
+{% load staticfiles otree_tags %}
+<p>
+    <b>
+        In round {{ player.subsession.round_number}}, I invest
+        <span class="">
+            <span>{{ previous_bet }}</span> %
+        </span>
+        {% if player.group.group_type == Constants.gadd %}
+        of my $10.000 into the risky asset
+        {% else %}
+        of my wealth into the risky asset.
+        {% endif %}
+    </b>
+</p>
+<p>
+    <input id="id_bet" class="form-control" type="hidden" name="bet" value="{{previous_bet}}">
+</p>

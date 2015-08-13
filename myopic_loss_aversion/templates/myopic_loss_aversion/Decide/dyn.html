@@ -1,0 +1,22 @@
+{% load staticfiles otree_tags %}
+<p>
+    <b>
+        In round {{ player.subsession.round_number}}, I invest
+        <span class="">
+            <span id="put-value-here"></span> %
+        </span>
+        {% if player.group.group_type == Constants.gadd %}
+        of my $10.000 into the risky asset
+        {% else %}
+        of my wealth into the risky asset.
+        {% endif %}
+    </b>
+</p>
+<p>
+    {% for field in form %}
+        {% formfield field with label=""%}
+    {% endfor %}
+</p>
+<p class="text-center">
+    <small>Click on the scale for select your invest</small>
+</p>

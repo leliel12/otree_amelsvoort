@@ -150,6 +150,11 @@ class Player(otree.models.BasePlayer):
             return True
         return round_number % 3 == 0
 
+    def decide_time(self):
+        if self.group.subgroup_type in (Constants.sg3, Constants.sg2):
+            return self.subsession.round_number in (1, 4, 7)
+        return True
+
     def gadd_payoff(self, winner, pw):
         X = Constants.gadd_endowment
         alpha_t = self.bet / 100.
@@ -208,3 +213,8 @@ class Player(otree.models.BasePlayer):
         if self.group.group_type == Constants.gadd:
             cw += Constants.gadd_endowment
         return cw
+
+    def previous_bet(self):
+        if self.subsession.round_number == 1:
+            return None
+        return self.in_previous_rounds()[-1].bet

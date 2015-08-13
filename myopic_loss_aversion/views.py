@@ -29,9 +29,15 @@ class Decide(Page):
 
     def vars_for_template(self):
         label = "In round {}, I invest".format(self.subsession.round_number)
-        return {"label": label}
+        decide_time = self.player.decide_time()
+        previous_bet = self.player.previous_bet()
+        return {
+            "label": label, "decide_time": decide_time,
+            "previous_bet": previous_bet}
 
     def before_next_page(self):
+        if not self.player.decide_time():
+            self.player.bet = self.player.previous_bet()
         self.player.set_payoff()
 
 
