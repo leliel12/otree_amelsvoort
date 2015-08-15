@@ -74,10 +74,7 @@ class Feedback(Page):
         return {"combined_payoff": combined_payoff, "rounds": rounds}
 
     def _sg3_vars_for_template(self):
-        limit = self.subsession.round_number
-        offset = limit - 3  # last 3 rounds
-        players = self.player.in_previous_rounds() + [self.player]
-        return {"player_x_round": players[offset:limit]}
+        return {}
 
     def _sg4_vars_for_template(self):
         return self._sg2_vars_for_template()

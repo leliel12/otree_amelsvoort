@@ -39,7 +39,7 @@ keywords = ("Myopic loss aversion", "Additive", "Multiplicative")
 
 class Constants:
 
-    dev = settings.DEBUG
+    dev = False #settings.DEBUG
 
     name_in_url = 'myopic_loss_aversion'
 
@@ -146,7 +146,7 @@ class Player(otree.models.BasePlayer):
 
     def feedback_time(self):
         round_number = self.subsession.round_number
-        if self.group.subgroup_type == Constants.sg1:
+        if self.group.subgroup_type in (Constants.sg1, Constants.sg3):
             return True
         return round_number % 3 == 0
 
